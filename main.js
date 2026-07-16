@@ -51,11 +51,14 @@ async function loadConfig(ctx) {
   // }
 
 
-  if (ctx.globalconfig["nodejs_ssl"] == 1) {
+  const keyPath = ctx.globalconfig["nodejs_key_path"] ? path.resolve(__dirname, ctx.globalconfig["nodejs_key_path"]) : "";
+  const certPath = ctx.globalconfig["nodejs_cert_path"] ? path.resolve(__dirname, ctx.globalconfig["nodejs_cert_path"]) : "";
+
+  if (ctx.globalconfig["nodejs_ssl"] == 1 && keyPath && certPath && fs.existsSync(keyPath) && !fs.lstatSync(keyPath).isDirectory() && fs.existsSync(certPath) && !fs.lstatSync(certPath).isDirectory()) {
     var https = require('https');
     var options = {
-      key: fs.readFileSync(path.resolve(__dirname, ctx.globalconfig["nodejs_key_path"])),
-      cert: fs.readFileSync(path.resolve(__dirname, ctx.globalconfig["nodejs_cert_path"]))
+      key: fs.readFileSync(keyPath),
+      cert: fs.readFileSync(certPath)
     };
     serverPort = ctx.globalconfig["nodejs_ssl_port"];
     server = https.createServer(options, app);
@@ -152,8 +155,9 @@ async function main() {
     await listeners.registerListeners(socket, io, ctx)
   })
 
-  server.listen(serverPort, function() {
-    console.log('server up and running at %s port', serverPort);
+  const finalPort = process.env.PORT || serverPort;
+  server.listen(finalPort, function() {
+    console.log('server up and running at %s port', finalPort);
   });
 }
 
