@@ -135,7 +135,7 @@ async function main() {
   await init()
 
   app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
+    res.send({ status: 200, message: "NodeJS Realtime Server is running." });
   });
   io = require('socket.io')(server, {
     allowEIO3: true,
