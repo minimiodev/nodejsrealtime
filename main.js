@@ -11,6 +11,13 @@ let ctx = {};
 const configFile = require("./config.json")
 const { Sequelize, Op, DataTypes } = require("sequelize");
 
+// Support Environment Variables for easy deployment on Cloud services like Render
+const sql_db_name = process.env.DB_NAME || configFile.sql_db_name;
+const sql_db_user = process.env.DB_USER || configFile.sql_db_user;
+const sql_db_pass = process.env.DB_PASS !== undefined ? process.env.DB_PASS : configFile.sql_db_pass;
+const sql_db_host = process.env.DB_HOST || configFile.sql_db_host;
+const site_url    = process.env.SITE_URL || configFile.site_url;
+
 // const notificationTemplate = Handlebars.compile(notification.toString());
 
 const listeners = require('./listeners/listeners')
@@ -24,7 +31,7 @@ async function loadConfig(ctx) {
   for (let c of config) {
     ctx.globalconfig[c.name] = c.value
   }
-  ctx.globalconfig["site_url"] = configFile.site_url
+  ctx.globalconfig["site_url"] = site_url
   ctx.globalconfig['theme_url'] = ctx.globalconfig["site_url"] + '/themes/' + ctx.globalconfig['theme']
 
   ctx.globalconfig["s3_site_url"]         = "https://test.s3.amazonaws.com";
@@ -69,8 +76,8 @@ async function loadLangs(ctx) {
 
 
 async function init() {
-  var sequelize = new Sequelize(configFile.sql_db_name, configFile.sql_db_user, configFile.sql_db_pass, {
-    host: configFile.sql_db_host,
+  var sequelize = new Sequelize(sql_db_name, sql_db_user, sql_db_pass, {
+    host: sql_db_host,
     dialect: "mysql",
     logging: function () {},
     pool: {
