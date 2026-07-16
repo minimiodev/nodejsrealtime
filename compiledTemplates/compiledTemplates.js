@@ -23,14 +23,27 @@ let messageRecipientsTemplate;
 
 const funcs = require('../functions/functions');
 const { group } = require("console");
+const getTemplate = (theme, name, defaultName) => {
+    const themePath = path.resolve(__dirname, '../../themes/' + theme + '/layout/nodejs/' + name);
+    if (fs.existsSync(themePath)) {
+        return fs.readFileSync(themePath);
+    }
+    const localPath = path.resolve(__dirname, '../templates/' + defaultName);
+    if (fs.existsSync(localPath)) {
+        return fs.readFileSync(localPath);
+    }
+    throw new Error(`Template not found: ${name} or ${defaultName}`);
+};
+
 module.exports.DefineTemplates = async (ctx) => {
-    chatList = fs.readFileSync(path.resolve(__dirname, '../../themes/'+ctx.globalconfig['theme']+'/layout/nodejs/chat-list.phtml'));
-    groupList =  fs.readFileSync(path.resolve(__dirname, '../../themes/'+ctx.globalconfig['theme']+'/layout/nodejs/group-list.phtml'));
-    offlineUser =  fs.readFileSync(path.resolve(__dirname, '../../themes/'+ctx.globalconfig['theme']+'/layout/nodejs/offline-user.phtml'));
-    onlineUser =  fs.readFileSync(path.resolve(__dirname, '../../themes/'+ctx.globalconfig['theme']+'/layout/nodejs/online-user.phtml'));
-    messageList =  fs.readFileSync(path.resolve(__dirname, '../../themes/'+ctx.globalconfig['theme']+'/layout/nodejs/message-text-list.phtml'));
-    messageGroupRecipientsList =  fs.readFileSync(path.resolve(__dirname, '../../themes/'+ctx.globalconfig['theme']+'/layout/nodejs/messages-group-list.phtml'));
-    messageRecipientsList =  fs.readFileSync(path.resolve(__dirname, '../../themes/'+ctx.globalconfig['theme']+'/layout/nodejs/messages-recipients-list.phtml'));
+    const theme = ctx.globalconfig['theme'];
+    chatList = getTemplate(theme, 'chat-list.phtml', 'chat-list.html');
+    groupList = getTemplate(theme, 'group-list.phtml', 'group-list.html');
+    offlineUser = getTemplate(theme, 'offline-user.phtml', 'offline-user.html');
+    onlineUser = getTemplate(theme, 'online-user.phtml', 'online-user.html');
+    messageList = getTemplate(theme, 'message-text-list.phtml', 'message-text-list.html');
+    messageGroupRecipientsList = getTemplate(theme, 'messages-group-list.phtml', 'messages-group-list.html');
+    messageRecipientsList = getTemplate(theme, 'messages-recipients-list.phtml', 'messages-recipients-list.html');
 
     chatListTemplate = Handlebars.compile(chatList.toString());
     groupListTemplate = Handlebars.compile(groupList.toString());

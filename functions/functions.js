@@ -117,9 +117,22 @@ class FunctionsUtils {
         return string;
     }
     async DefineAudioTemplates(ctx) {
-        audio = fs.readFileSync(path.resolve(__dirname, '../../themes/'+ctx.globalconfig['theme']+'/layout/nodejs/audio.phtml'));
-        chat_audio = fs.readFileSync(path.resolve(__dirname, '../../themes/'+ctx.globalconfig['theme']+'/layout/nodejs/chat-audio.phtml'));
-        chat_video = fs.readFileSync(path.resolve(__dirname, '../../themes/'+ctx.globalconfig['theme']+'/layout/nodejs/chat-video.phtml'));
+        const theme = ctx.globalconfig['theme'];
+        const getTemplate = (name, defaultName) => {
+            const themePath = path.resolve(__dirname, '../../themes/' + theme + '/layout/nodejs/' + name);
+            if (fs.existsSync(themePath)) {
+                return fs.readFileSync(themePath);
+            }
+            const localPath = path.resolve(__dirname, '../templates/' + defaultName);
+            if (fs.existsSync(localPath)) {
+                return fs.readFileSync(localPath);
+            }
+            throw new Error(`Template not found: ${name} or ${defaultName}`);
+        };
+
+        audio = getTemplate('audio.phtml', 'audio.html');
+        chat_audio = getTemplate('chat-audio.phtml', 'chat-audio.html');
+        chat_video = getTemplate('chat-video.phtml', 'chat-video.html');
 
         audioTemplate = Handlebars.compile(audio.toString());
         chatAudioTemplate = Handlebars.compile(chat_audio.toString());
