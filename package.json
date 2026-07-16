@@ -15,7 +15,7 @@
     "handlebars": "^4.7.6",
     "md5": "^2.3.0",
     "moment": "^2.29.1",
-    "mysql2": "^2.3.3",
+    "mysql2": "^2.2.5",
     "sanitize-html": "^2.10.0",
     "sequelize": "^6.3.5",
     "socket.io": "^2.3.0",
