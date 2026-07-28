@@ -8,15 +8,20 @@ let ctx = {};
 
 // var http = require('http').createServer(app);
 // var io = require('socket.io')(http);
-const configFile = require("./config.json")
+let configFile = {};
+try {
+  configFile = require("./config.json");
+} catch (e) {
+  configFile = {};
+}
 const { Sequelize, Op, DataTypes } = require("sequelize");
 
 // Support Environment Variables for easy deployment on Cloud services like Render
-const sql_db_name = process.env.DB_NAME || configFile.sql_db_name;
-const sql_db_user = process.env.DB_USER || configFile.sql_db_user;
-const sql_db_pass = process.env.DB_PASS !== undefined ? process.env.DB_PASS : configFile.sql_db_pass;
-const sql_db_host = process.env.DB_HOST || configFile.sql_db_host;
-const site_url    = process.env.SITE_URL || configFile.site_url;
+const sql_db_name = process.env.DB_NAME || configFile.sql_db_name || "";
+const sql_db_user = process.env.DB_USER || configFile.sql_db_user || "";
+const sql_db_pass = process.env.DB_PASS !== undefined ? process.env.DB_PASS : (configFile.sql_db_pass || "");
+const sql_db_host = process.env.DB_HOST || configFile.sql_db_host || "localhost";
+const site_url    = process.env.SITE_URL || configFile.site_url || "";
 
 // const notificationTemplate = Handlebars.compile(notification.toString());
 
@@ -51,16 +56,16 @@ async function loadConfig(ctx) {
   // }
 
 
-  if (ctx.globalconfig["nodejs_ssl"] == 1) {
+  if (ctx.globalconfig["nodejs_ssl"] == 1 && !process.env.PORT) {
     var https = require('https');
     var options = {
       key: fs.readFileSync(path.resolve(__dirname, ctx.globalconfig["nodejs_key_path"])),
       cert: fs.readFileSync(path.resolve(__dirname, ctx.globalconfig["nodejs_cert_path"]))
     };
-    serverPort = ctx.globalconfig["nodejs_ssl_port"];
+    serverPort = process.env.PORT || ctx.globalconfig["nodejs_ssl_port"] || 8000;
     server = https.createServer(options, app);
   } else {
-    serverPort = ctx.globalconfig["nodejs_port"];
+    serverPort = process.env.PORT || ctx.globalconfig["nodejs_port"] || 8000;
     server = require('http').createServer(app);
   }
 
